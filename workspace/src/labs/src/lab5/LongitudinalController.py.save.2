@@ -15,12 +15,12 @@ n_FL        = 0.0
 n_FR        = 0.0
 t0          = time.time()
 r_tire      = 0.05 # radius of the tire
-servo_pwm   = 1540.0
+servo_pwm   = 1520.0
 motor_pwm   = 1500.0
 motor_pwm_offset = 1500.0
 
 # reference speed
-v_ref = 1.0 # give reference speed is 0.5 m/s
+v_ref = 0.5 # give reference speed is 0.5 m/s
 
 # ===================================PID longitudinal controller================================#
 class PID():
@@ -30,8 +30,8 @@ class PID():
         self.kd = kd
         self.integrator = integrator
         self.derivator = derivator
-        self.integrator_max = 15
-        self.integrator_min = -4
+        self.integrator_max = 10
+        self.integrator_min = -10
 
     def acc_calculate(self, speed_reference, speed_current):
         self.error = speed_reference - speed_current
@@ -66,26 +66,25 @@ class PID():
 
 # encoder measurement update
 def encoder_callback(data):
-    global t0, v_meas
-    global n_FL, n_FR
-    global ang_km1, ang_km2
+	global t0, v_meas
+	global n_FL, n_FR
+	global ang_km1, ang_km2
 
-    n_FL = data.FL
-    n_FR = data.FR
-    n_mean = (n_FL+n_FR)/2
+	n_FL = data.FL
+	
+n_FR = data.FR
+    	n_mean = (n_FL)
+    	ang_mean = n_mean*2*pi*8
 
+    	tf = time.time()
+    	dt = tf - t0
+    	v_meas = r_tire*(3*ang_mean - 4*ang_km1 + ang_km2)/(2*dt)
 
-    ang_mean = n_mean*2*pi/8
+`	rospy.logwarn("speed = {}".format(v_meas))
 
-    tf = time.time()
-    dt = tf - t0
-    v_meas = r_tire*(3*ang_mean - 4*ang_km1 + ang_km2)/(2*dt)
-    #rospy.logwarn("speed = {}".format(v_meas))
-
-
-    ang_km1 = ang_mean
-    ang_km2 = ang_km1
-    t0 = time.time()
+	ang_km1 = ang_mean
+	ang_km2 = ang_km1
+	t0 = time.time()
 
 
 # state estimation node
@@ -105,10 +104,7 @@ def controller():
     rate        = rospy.Rate(loop_rate)
 
     # Initialize your PID controller here, with your chosen PI gains
-    #PID_control = PID(kp = 40, ki = 5.3, kd = 0)
-    PID_control = PID(kp = 40, ki = 5, kd = 0)
-
-
+    PID_control = PID(kp = 15, ki = 6, kd = 0)
 
     while not rospy.is_shutdown():
         # calculate acceleration from PID controller.

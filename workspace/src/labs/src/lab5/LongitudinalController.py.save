@@ -15,7 +15,7 @@ n_FL        = 0.0
 n_FR        = 0.0
 t0          = time.time()
 r_tire      = 0.05 # radius of the tire
-servo_pwm   = 1540.0
+servo_pwm   = 1520.0
 motor_pwm   = 1500.0
 motor_pwm_offset = 1500.0
 
@@ -30,7 +30,7 @@ class PID():
         self.kd = kd
         self.integrator = integrator
         self.derivator = derivator
-        self.integrator_max = 15
+        self.integrator_max = 8
         self.integrator_min = -4
 
     def acc_calculate(self, speed_reference, speed_current):
@@ -105,10 +105,8 @@ def controller():
     rate        = rospy.Rate(loop_rate)
 
     # Initialize your PID controller here, with your chosen PI gains
-    #PID_control = PID(kp = 40, ki = 5.3, kd = 0)
-    PID_control = PID(kp = 40, ki = 5, kd = 0)
-
-
+    PID_control = PID(kp = 40, ki = 5.3
+, kd = 0)
 
     while not rospy.is_shutdown():
         # calculate acceleration from PID controller.
