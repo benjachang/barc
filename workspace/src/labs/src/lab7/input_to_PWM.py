@@ -7,6 +7,7 @@ import rospy
 import time
 from geometry_msgs.msg import Twist
 from barc.msg import ECU, Input, Moving, Encoder 
+from numpy import pi
 
 # from encoder
 v_meas = 0.0
@@ -38,7 +39,7 @@ def enc_callback(data):
     """
     CHANGE THIS DEPENDING ON WHICH ENCODERS WORK
     """
-    n_mean = (n_FL + n_FR + n_BL)/3
+    n_mean = (n_FL + n_FR)/2
 
     # transfer the encoder measurement to angular displacement
     ang_mean = n_mean*2*pi/8
@@ -78,36 +79,77 @@ def moving_callback_function(data):
 
 # update
 def callback_function(data):
-    global move, still_moving
+    global move, still_moving, v_ref, servo_pwm
     # Convert the velocity into motorPWM and steering angle into servoPWM
-    newECU.motor = ((0.7057*data.vel)/0.0121) + 1500
-    #newECU.motor = ((0.8900*data.vel)/0.0121) + 1500
-    newECU.servo = -(data.delta - 1.970449)/0.001309 
+    #newECU.motor = ((0.7057*data.vel)/0.0121) + 1500
+    v_ref = data.vel
+    servo_pwm = -(data.delta - 1.970449)/0.001309 
 
-    maxspeed = 1580
-    minspeed = 1400
-    servomax = 1800
-    servomin = 1200
+    #maxspeed = 1580
+    #minspeed = 1400
+    servomax = 1840 #800
+    servomin = 1160 #1200
+    """
     if (newECU.motor<minspeed):
         newECU.motor = minspeed
     elif (newECU.motor>maxspeed):
         newECU.motor = maxspeed
+    """
     if (newECU.servo<servomin):
         newECU.servo = servomin
     elif (newECU.servo>servomax):
         newECU.servo = servomax     # input steering angle
-
+    """
     if ((move == False) or (still_moving == False)):
         newECU.motor = 1500
         newECU.servo = 1540
+    """
     #print("5")
     #print(move)
 
-    pubname.publish(newECU)
+    #pubname.publish(newECU)
+
+class PID():
+    def __init__(self, kp=1, ki=1, kd=1, integrator=0, derivator=0):
+        self.kp = kp
+        self.ki = ki
+        self.kd = kd
+        self.integrator = integrator
+        self.derivator = derivator
+        self.integrator_max = 10
+        self.integrator_min = -10
+
+    def acc_calculate(self, speed_reference, speed_current):
+        self.error = speed_reference - speed_current
+        
+        # Propotional control
+        self.P_effect = self.kp*self.error
+        
+        # Integral control
+        self.integrator = self.integrator + self.error
+        ## Anti windup
+        if self.integrator >= self.integrator_max:
+            self.integrator = self.integrator_max
+        if self.integrator <= self.integrator_min:
+            self.integrator = self.integrator_min
+        self.I_effect = self.ki*self.integrator
+        
+        # Derivative control
+        self.derivator = self.error - self.derivator
+        self.D_effect = self.kd*self.derivator
+        self.derivator = self.error
+
+        acc = self.P_effect + self.I_effect + self.D_effect
+        
+        if acc <= 0:
+            acc = 20
+        return acc
 
 # state estimation node
 def inputToPWM():
-    
+    global motor_pwm, servo_pwm, motor_pwm_offset, servo_pwm_offset
+    global v_ref, v_meas
+
     # initialize node
     rospy.init_node('inputToPWM', anonymous=True)
     
@@ -124,14 +166,39 @@ def inputToPWM():
     rospy.Subscriber('turtle1/cmd_vel', Twist, start_callback)
     subname = rospy.Subscriber('uOpt', Input, callback_function)
     rospy.Subscriber('moving', Moving, moving_callback_function)
+    rospy.Subscriber('encoder', Encoder, enc_callback)
     # set node rate
     loop_rate   = 40
     ts          = 1.0 / loop_rate
     rate        = rospy.Rate(loop_rate)
     t0          = time.time()
-     
-    rospy.spin()
+    
+    # Initialize the PID controller
+    longitudinal_control = PID(kp=70, ki=5, kd=1)
+    maxspeed = 1650
+    minspeed = 1400
 
+    while not rospy.is_shutdown():
+        try:
+            # acceleration calculated from PID controller
+            motor_pwm = longitudinal_control.acc_calculate(v_ref, v_meas) + motor_pwm_offset
+            if (motor_pwm<minspeed):
+                motor_pwm = minspeed
+            elif (motor_pwm>maxspeed):
+                motor_pwm = maxspeed
+
+            if ((move == False) or (still_moving == False)):
+                motor_pwm = 1500
+                servo_pwm = 1550
+
+            # publish information
+            pubname.publish( ECU(motor_pwm, servo_pwm) )
+
+            # wait
+            rate.sleep()
+        except:
+            pass 
+    #rospy.spin()
 
 
 if __name__ == '__main__':
