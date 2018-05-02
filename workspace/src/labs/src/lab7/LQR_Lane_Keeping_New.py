@@ -545,7 +545,7 @@ class image_processing_node():
 
                 print('Ac',Ac)
                 print('Bc',Bc)
-                print('vref'.v_ref)
+                print('vref',v_ref)
                 print('psi_des',psi_des)
                 print('beta_des',beta_des)
 
