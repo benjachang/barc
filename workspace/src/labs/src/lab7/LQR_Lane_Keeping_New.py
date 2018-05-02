@@ -510,8 +510,8 @@ class image_processing_node():
                 Ac = np.matrix([[0, 0, -v_ref*sin(psi_des+beta_des)],[0, 0, v_ref*cos(psi_des+beta_des)],[0, 0, 0]]);
                 Bc = np.matrix([[cos(psi_des+beta_des), -v_ref*sin(psi_des+beta_des)],[sin(psi_des+beta_des), v_ref*cos(psi_des+beta_des)],[sin(beta_des)/lr, v_ref*cos(beta_des)/lr]])
 
-                Q = np.matrix([[50, 0, 0],[0, 50, 0],[0, 0, 1]]);
-                R = np.matrix([[25, 0 ],[0, 1]]);
+                Q = np.matrix([[100, 0, 0],[0, 5000, 0],[0, 0, 100]]);
+                R = np.matrix([[1, 0 ],[0, 1]]);
 
                 if j == 0:
                     z = np.matrix([[0],[0],[0]])
