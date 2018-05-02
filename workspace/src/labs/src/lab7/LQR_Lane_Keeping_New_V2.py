@@ -386,7 +386,7 @@ class image_processing_node():
                 dt = self.dt
                 lr = 0.15
                 lf = 0.15
-                j = 3
+                j = 4
                 interval = 1
                 x_ref_for_radius = [x_ref[j+interval],x_ref[j+interval*2]]
                 y_ref_for_radius = [y_ref[j+interval],y_ref[j+interval*2]]
@@ -417,6 +417,7 @@ class image_processing_node():
                 else:
                     beta_des = abs(asin(lr/Radius));
                     psi_des = psidot_des*dt*-1;
+                
                 """
                 print('')
                 print(self.count)
@@ -425,19 +426,33 @@ class image_processing_node():
                 print('psi_des',psi_des*180/pi)
                 """
 
-                z = np.matrix([[0],[0],[0]])
+                if j == 0:
+                    z = np.matrix([[0],[0],[0]])
+                else:
+                    z = np.matrix([[x_ref[j-1]],[y_ref[j-1]],[0]])
                 z_ref = [[x_ref[0]],[y_ref[0]],[psi_des]];
                 u_bar = [[v_ref],[beta_des]];
 
-
+                ### STATE SPACE MATRICES ###
                 Ac = np.matrix([[0,0,(-v_ref*sin(psi_des + beta_des))],[0,0,(v_ref*cos(psi_des + beta_des))],[0,0,0]])
                 Bc = np.matrix([[cos(psi_des + beta_des),(-v_ref*sin(psi_des + beta_des))],[sin(psi_des + beta_des),(v_ref*cos(psi_des + beta_des))],[(sin(beta_des)/lr),(v_ref*cos(beta_des)/lr)]])
 
+                ### TUNE THESE LQR GAINS ###
+                Q = np.matrix([[50, 0, 0],[0, 500, 0],[0, 0, 1]]);
+                R = np.matrix([[25, 0 ],[0, 1]]);
+
+                """ These are the starting gains from the solutions
+                Q = np.matrix([[50, 0, 0],[0, 50, 0],[0, 0, 1]]);
+                R = np.matrix([[25, 0 ],[0, 1]]);
+                """
+            
+                """ These are the reference gains tuned through simulink
                 Q = np.matrix([[100,0,0],[0,5000,0],[0,0,100]])
                 R = np.matrix([[1,0],[0,1]])
+                """
 
                 # Compute the LQR controller
-                K, X, closedLoopEigVals = controlpy.synthesis.controller_lqr(Ac,Bc,Q,R)
+                K, X, closedLoopEigVals = controlpy.synthesis.controller_lqr_discrete_from_continuous_time(Ac, Bc, Q, R, dt)
 
                 u_Opt = np.add(np.dot(-K,(z - z_ref)),u_bar)
                 vOpt = u_Opt[0,0]
