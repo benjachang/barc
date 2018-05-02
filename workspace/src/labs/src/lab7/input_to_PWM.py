@@ -35,7 +35,7 @@ def callback_function(data):
     global move, still_moving
     # Convert the velocity into motorPWM and steering angle into servoPWM
     newECU.motor = ((0.7057*data.vel)/0.0121) + 1500
-   # newECU.motor = ((0.8900*data.vel)/0.0121) + 1500
+    newECU.motor = ((0.8900*data.vel)/0.0121) + 1500
     newECU.servo = -(data.delta - 1.970449)/0.001309 
 
     maxspeed = 1580
