@@ -156,7 +156,7 @@ class image_processing_node():
                 gamma = 0
 
                 # Colored = True makes the path show up on top of the colored image. 
-                colored = False
+                colored = True
                 if colored:
                     self.line_img_color = np.zeros(self.cv_image.shape, dtype=np.uint8)
                     self.LinesDrawn2_color = cv2.addWeighted(self.cv_image,alpha,self.line_img_color,beta,gamma)
