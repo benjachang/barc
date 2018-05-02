@@ -548,6 +548,7 @@ class image_processing_node():
                 print('vref',v_ref)
                 print('psi_des',psi_des)
                 print('beta_des',beta_des)
+                print('dt', dt)
 
                 ### TUNE THESE LQR GAINS ###
                 Q = np.matrix([[50, 0, 0],[0, 500, 0],[0, 0, 1]]);
