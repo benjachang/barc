@@ -484,6 +484,7 @@ class image_processing_node():
         # Transforms the ynewpixel into xinertial frame
         #y_newPixel = -2.21264430779643*pow(x_Inertial,4)+  35.1296969153215*pow(x_Inertial,3) -211.245402739726*pow(x_Inertial,2)+   589.932691380840*x_Inertial   -460.079758159785
         y_newPixel = 143/2 + 1/2*sqrt(-19669 + 25000000*x_Inertial/381)
+        print('y_newpixel', y_newPixel)
         return y_newPixel
     
 
