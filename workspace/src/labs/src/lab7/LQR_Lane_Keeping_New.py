@@ -485,8 +485,8 @@ class image_processing_node():
         y_newPixel = -2.21264430779643*pow(x_Inertial,4)+  35.1296969153215*pow(x_Inertial,3) -211.245402739726*pow(x_Inertial,2)+   589.932691380840*x_Inertial   -460.079758159785
         return y_newPixel
     """
-    
-    #########################################################################
+
+    #################################################################################
     def compute_uOpt(self,x_ref,y_ref,v_ref):
         try:
             if not(self.stopmoving):
@@ -497,11 +497,11 @@ class image_processing_node():
 
                 Play around with this values to adjust how far you look ahead to calculate the next optimal input. (Recall there is some time delay so you may want to send an input from the future)
                 """
-                dt = self.avg2#self.dt
+                dt = self.avg2 #self.dt
                 lr = 0.15
                 lf = 0.15
                 j = 4
-                interval = 1
+                interval = 3 #1
                 x_ref_for_radius = [x_ref[j+interval],x_ref[j+interval*2]]
                 y_ref_for_radius = [y_ref[j+interval],y_ref[j+interval*2]]
                 x_ref_for_radius = np.append(x_ref[j],x_ref_for_radius)
@@ -542,8 +542,19 @@ class image_processing_node():
                 Ac = np.matrix([[0, 0, -v_ref*sin(psi_des+beta_des)],[0, 0, v_ref*cos(psi_des+beta_des)],[0, 0, 0]]);
                 Bc = np.matrix([[cos(psi_des+beta_des), -v_ref*sin(psi_des+beta_des)],[sin(psi_des+beta_des), v_ref*cos(psi_des+beta_des)],[sin(beta_des)/lr, v_ref*cos(beta_des)/lr]])
 
-                Q = np.matrix([[100, 0, 0],[0, 5000, 0],[0, 0, 100]]);
-                R = np.matrix([[1, 0 ],[0, 1]]);
+                ### TUNE THESE LQR GAINS ###
+                Q = np.matrix([[50, 0, 0],[0, 500, 0],[0, 0, 1]]);
+                R = np.matrix([[25, 0 ],[0, 1]]);
+
+                """ These are the starting gains from the solutions
+                Q = np.matrix([[50, 0, 0],[0, 50, 0],[0, 0, 1]]);
+                R = np.matrix([[25, 0 ],[0, 1]]);
+                """
+            
+                """ These are the reference gains tuned through simulink
+                Q = np.matrix([[100,0,0],[0,5000,0],[0,0,100]])
+                R = np.matrix([[1,0],[0,1]])
+                """
 
                 if j == 0:
                     z = np.matrix([[0],[0],[0]])
