@@ -9,7 +9,6 @@ from geometry_msgs.msg import Twist
 from barc.msg import ECU, Input, Moving
 
 
-
 def start_callback(data):
     global move, still_moving
     if data.linear.x >0:
@@ -77,8 +76,6 @@ def inputToPWM():
     t0          = time.time()
      
     rospy.spin()
-
-
 
 if __name__ == '__main__':
     try:
