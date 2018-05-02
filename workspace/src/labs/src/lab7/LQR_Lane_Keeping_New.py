@@ -543,12 +543,10 @@ class image_processing_node():
                 Ac = np.matrix([[0, 0, -v_ref*sin(psi_des+beta_des)],[0, 0, v_ref*cos(psi_des+beta_des)],[0, 0, 0]]);
                 Bc = np.matrix([[cos(psi_des+beta_des), -v_ref*sin(psi_des+beta_des)],[sin(psi_des+beta_des), v_ref*cos(psi_des+beta_des)],[sin(beta_des)/lr, v_ref*cos(beta_des)/lr]])
 
-                print('Ac',Ac)
-                print('Bc',Bc)
                 print('vref',v_ref)
-                print('psi_des',psi_des)
-                print('beta_des',beta_des)
-                print('dt', dt)
+                print('Radius', Radius)
+                print('x_ref_for_radius', x_ref_for_radius)
+                print('y_ref_for_radius', y_ref_for_radius)
 
                 ### TUNE THESE LQR GAINS ###
                 Q = np.matrix([[50, 0, 0],[0, 500, 0],[0, 0, 1]]);
