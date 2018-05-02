@@ -565,8 +565,9 @@ class image_processing_node():
                 u_bar = [[v_ref],[beta_des]];
 
                 # Compute the LQR controller
-                K, X, closedLoopEigVals = controlpy.synthesis.controller_lqr_discrete_from_continuous_time(Ac, Bc, Q, R, dt)
-
+                #K, X, closedLoopEigVals = controlpy.synthesis.controller_lqr_discrete_from_continuous_time(Ac, Bc, Q, R, dt)
+                K, X, closedLoopEigVals = controlpy.synthesis.controller_lqr(Ac,Bc,Q,R)
+                
                 u_Opt = -K*(z-z_ref)+u_bar;
                 vOpt = u_Opt[0,0]
                 betaOpt = u_Opt[1,0]
