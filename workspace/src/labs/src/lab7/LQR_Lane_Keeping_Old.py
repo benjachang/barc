@@ -334,6 +334,7 @@ class image_processing_node():
         self.compute_uOpt(self.reference_trajectory.x,self.reference_trajectory.y,self.v_ref)
         ####################################################################
      ######################################################################################
+
     def convertPixelsToDistance(self,inputarray):
         #print(inputarray)
         #print("\n\n")
@@ -352,26 +353,26 @@ class image_processing_node():
 
     def calc_x_newPixel_to_y_Inertial(self,x_newPixel,y_newPixel):
         # Transforms the xnewpixel into yinertial frame
-        y_Inertial = 0 #initiliaze CHARLIE CAN YOU CHECK ALL THIS LOGIC
-	if y_newPixel <= 63:
-	    y_Inertial = -0.0033*x_newPixel - 0.0189
-	elif y_newPixel <= 143:
-	    y_low = -0.0033*x_newPixel - 0.0189
-	    y_high= -0.0058*x_newPixel - 0.0511
-	    y_Inertial = y_low + (y_high-y_low)*(x_newPixel-63)/(143-63)
-	elif y_newPixel <= 172:
-	    y_low = -0.0058*x_newPixel - 0.0511
-	    y_high= -0.0079*x_newPixel - 0.0409
-	    y_Inertial = y_low + (y_high-y_low)*(x_newPixel-143)/(172-143)
-	elif y_newPixel <= 193:
-		y_low = -0.0079*x_newPixel - 0.0409
-		y_high = -0.0100*x_newPixel - 0.0350
-		y_Inertial = y_low + (y_high-y_low)*(x_newPixel-172)(193-172)
-	else:
-	    y_Inertial = -0.0100*x_newPixel - 0.0350
+        y_Inertial = 0 #initiliaze
+    	if y_newPixel <= 63:
+    	    y_Inertial = -0.0033*x_newPixel - 0.0189
+    	elif y_newPixel <= 143:
+    	    y_low = -0.0033*x_newPixel - 0.0189
+    	    y_high= -0.0058*x_newPixel - 0.0511
+    	    y_Inertial = y_low + (y_high-y_low)*(x_newPixel-63)/(143-63)
+    	elif y_newPixel <= 172:
+    	    y_low = -0.0058*x_newPixel - 0.0511
+    	    y_high= -0.0079*x_newPixel - 0.0409
+    	    y_Inertial = y_low + (y_high-y_low)*(x_newPixel-143)/(172-143)
+    	elif y_newPixel <= 193:
+    		y_low = -0.0079*x_newPixel - 0.0409
+    		y_high = -0.0100*x_newPixel - 0.0350
+    		y_Inertial = y_low + (y_high-y_low)*(x_newPixel-172)(193-172)
+    	else:
+    	    y_Inertial = -0.0100*x_newPixel - 0.0350
 
-        y_Inertial=y_Inertial*0.3048 #convert ft to m
-        return y_Inertial
+            y_Inertial=y_Inertial*0.3048 #convert ft to m
+            return y_Inertial
 
     def calc_y_newPixel_to_x_Inertial(self,y_newPixel):
         # Transforms the ynewpixel into xinertial frame

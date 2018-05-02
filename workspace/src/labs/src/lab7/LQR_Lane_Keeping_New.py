@@ -270,10 +270,11 @@ class image_processing_node():
         #p = input("sss")
         #print(time.time()-timehere)
         return (x_left, x_right,y_left,y_right)
-    ##############################################################################################
+
+    #################################################################################
     def draw_lines(self,data):
         thickness=3
-        color=[0, 0,255 ]
+        color=[0, 0, 255]
         img = self.line_img_color
         self.edges = self.edge_inloop
         height, width = self.edges.shape 
@@ -418,9 +419,12 @@ class image_processing_node():
             transformed_x_Inertial_list[i] = self.calc_y_newPixel_to_x_Inertial(y)
         return transformed_x_Inertial_list,transformed_y_Inertial_list
 
+    ### MODIFY THIS ###
     def calc_x_newPixel_to_y_Inertial(self,x_newPixel,y_newPixel):
         # Transforms the xnewpixel into yinertial frame
         #y_Inertial = -x_newPixel/(-1.5*y_newPixel+342) 
+        
+        """
         x_Inertial = self.calc_y_newPixel_to_x_Inertial(y_newPixel)/0.3048
         y_Inertial = (x_newPixel-self.f2(x_Inertial))/self.b_eq(x_Inertial)
         y_newPixelskewed = self.f1(y_Inertial)
@@ -429,7 +433,30 @@ class image_processing_node():
 
         y_Inertial=y_Inertial*0.3048 #convert ft to m
         return -y_Inertial
+        """
 
+        y_Inertial = 0 #initiliaze
+        if y_newPixel <= 63:
+            y_Inertial = -0.0033*x_newPixel - 0.0189
+        elif y_newPixel <= 143:
+            y_low = -0.0033*x_newPixel - 0.0189
+            y_high= -0.0058*x_newPixel - 0.0511
+            y_Inertial = y_low + (y_high-y_low)*(x_newPixel-63)/(143-63)
+        elif y_newPixel <= 172:
+            y_low = -0.0058*x_newPixel - 0.0511
+            y_high= -0.0079*x_newPixel - 0.0409
+            y_Inertial = y_low + (y_high-y_low)*(x_newPixel-143)/(172-143)
+        elif y_newPixel <= 193:
+            y_low = -0.0079*x_newPixel - 0.0409
+            y_high = -0.0100*x_newPixel - 0.0350
+            y_Inertial = y_low + (y_high-y_low)*(x_newPixel-172)(193-172)
+        else:
+            y_Inertial = -0.0100*x_newPixel - 0.0350
+
+        y_Inertial=y_Inertial*0.3048 #convert ft to m
+        return y_Inertial
+
+    """
     def f1(self,y_Inertial):
         m1 = 1.71076866038278*pow(y_Inertial,3)-6.52448428390889*pow(y_Inertial,2)+9.35827901168236*y_Inertial+0.197256906693595
         return m1
@@ -441,19 +468,24 @@ class image_processing_node():
     def b_eq(self,x_Inertial):
         b = (-6.99999999999982*pow(x_Inertial,3)+93.4999999999980*pow(x_Inertial,2)-443.499999999993*x_Inertial+844.999999999992)
         return b
+    """
 
+    ### MODIFY THIS ###
     def calc_y_newPixel_to_x_Inertial(self,y_newPixel):
         # Transforms the ynewpixel into xinertial frame
         #x_Inertial = 1.04693521412328e-10*pow(y_newPixel,5)-4.04703090338910e-08*pow(y_newPixel,4)+5.58697632038841e-06*pow(y_newPixel,3)-0.000306408741052082*pow(y_newPixel,2)+ 0.0144947520313244*y_newPixel+ 0.472937470305450
-        x_Inertial =  6.41114537402027e-09*pow(y_newPixel,4)-1.98328350334255e-06*pow(y_newPixel,3)+0.000217407985767537*pow(y_newPixel,2)-0.00187086071966570*y_newPixel+1.20129636574706
+        #x_Inertial =  6.41114537402027e-09*pow(y_newPixel,4)-1.98328350334255e-06*pow(y_newPixel,3)+0.000217407985767537*pow(y_newPixel,2)-0.00187086071966570*y_newPixel+1.20129636574706
+        x_Inertial = 0.0002*y_newPixel**2 - 0.0286*y_newPixel + 2.0059
         x_Inertial=x_Inertial*0.3048 #convert ft to m
         return x_Inertial
 
+    """
     def calc_x_Inertial_to_y_newPixel(self,x_Inertial):
         # Transforms the ynewpixel into xinertial frame
         y_newPixel = -2.21264430779643*pow(x_Inertial,4)+  35.1296969153215*pow(x_Inertial,3) -211.245402739726*pow(x_Inertial,2)+   589.932691380840*x_Inertial   -460.079758159785
         return y_newPixel
-
+    """
+    
     #########################################################################
     def compute_uOpt(self,x_ref,y_ref,v_ref):
         try:
