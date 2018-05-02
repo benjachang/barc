@@ -16,7 +16,7 @@
 
     <node 
 		pkg="labs" 
-		type="input_to_PWM.py" 
+		type="input_to_PWM_Old.py" 
 		name="input_to_PWM">
     </node>
 
