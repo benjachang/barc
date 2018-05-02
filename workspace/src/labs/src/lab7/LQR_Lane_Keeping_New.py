@@ -543,6 +543,9 @@ class image_processing_node():
                 Ac = np.matrix([[0, 0, -v_ref*sin(psi_des+beta_des)],[0, 0, v_ref*cos(psi_des+beta_des)],[0, 0, 0]]);
                 Bc = np.matrix([[cos(psi_des+beta_des), -v_ref*sin(psi_des+beta_des)],[sin(psi_des+beta_des), v_ref*cos(psi_des+beta_des)],[sin(beta_des)/lr, v_ref*cos(beta_des)/lr]])
 
+                print('Ac',Ac)
+                print('Bc',Bc)
+
                 ### TUNE THESE LQR GAINS ###
                 Q = np.matrix([[50, 0, 0],[0, 500, 0],[0, 0, 1]]);
                 R = np.matrix([[25, 0 ],[0, 1]]);
@@ -567,7 +570,7 @@ class image_processing_node():
                 # Compute the LQR controller
                 #K, X, closedLoopEigVals = controlpy.synthesis.controller_lqr_discrete_from_continuous_time(Ac, Bc, Q, R, dt)
                 K, X, closedLoopEigVals = controlpy.synthesis.controller_lqr(Ac,Bc,Q,R)
-                
+
                 u_Opt = -K*(z-z_ref)+u_bar;
                 vOpt = u_Opt[0,0]
                 betaOpt = u_Opt[1,0]
