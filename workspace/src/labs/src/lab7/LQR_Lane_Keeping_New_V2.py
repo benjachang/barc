@@ -103,6 +103,8 @@ class image_processing_node():
                     #hsv = cv2.GaussianBlur(hsv,(kernel_size,kernel_size),0)
                     #######cv2.imshow('hsv',hsv[270:480,:])
 
+                    
+                    """ THIS IS THE YELLLOW LINE DETECION CODE
                     # define range of blue color in HSV (B,G,R)
                     lower_yellow = np.array([0,180,100])
                     upper_yellow = np.array([50,255,255])
@@ -110,8 +112,9 @@ class image_processing_node():
                     # Threshold the HSV image to get only blue colors
                     edges = cv2.inRange(hsv, lower_yellow, upper_yellow) #0.03s
                     
-                    
-                    """ UNCOMMENT THIS FOR THE REDWHITE TRACK
+                    """
+
+                    # UNCOMMENT THIS FOR THE REDWHITE TRACK
                     lower_red = np.array([0,0,180])
                     upper_red = np.array([50,120,255])
 
@@ -123,8 +126,7 @@ class image_processing_node():
                     self.whites = cv2.inRange(self.cv_image, lower_white, upper_white) #0.03s
                     edges = cv2.bitwise_or(self.reds,self.whites)
                     edges = cv2.GaussianBlur(edges,(kernel_size,kernel_size),0)
-                    """
-
+                    
 
                     #edges = cv2.cvtColor(edges, cv2.COLOR_BGR2GRAY)
                     #cv2.imshow("hsv to gray",edges)
