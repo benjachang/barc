@@ -456,8 +456,8 @@ class image_processing_node():
                 Bc = np.matrix([[cos(psi_des + beta_des),(-v_ref*sin(psi_des + beta_des))],[sin(psi_des + beta_des),(v_ref*cos(psi_des + beta_des))],[(sin(beta_des)/lr),(v_ref*cos(beta_des)/lr)]])
 
                 ### TUNE THESE LQR GAINS ###
-                Q = np.matrix([[200, 0, 0],[0, 300, 0],[0, 0, 300]]);
-                R = np.matrix([[60, 0 ],[0, 100]]);
+                Q = np.matrix([[30, 0, 0],[0, 30, 0],[0, 0, 30]]);
+                R = np.matrix([[1, 0 ],[0, 2]]);
 
                 """ These are the starting gains from the solutions
                 Q = np.matrix([[50, 0, 0],[0, 50, 0],[0, 0, 1]]);
