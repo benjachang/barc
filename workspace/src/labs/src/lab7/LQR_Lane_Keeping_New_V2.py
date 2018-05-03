@@ -35,7 +35,7 @@ class image_processing_node():
         self.h = 480
 
         # Reference velocity
-        self.v_ref = 1.2
+        self.v_ref = 1.4
 
         # Number of moving average points
         self.sx = 5
@@ -404,8 +404,8 @@ class image_processing_node():
                 dt = self.dt
                 lr = 0.15
                 lf = 0.15
-                j = 1
-                interval = 2
+                j = 2
+                interval = 1
                 x_ref_for_radius = [x_ref[j+interval],x_ref[j+interval*2]]
                 y_ref_for_radius = [y_ref[j+interval],y_ref[j+interval*2]]
                 x_ref_for_radius = np.append(x_ref[j],x_ref_for_radius)
@@ -456,8 +456,8 @@ class image_processing_node():
                 Bc = np.matrix([[cos(psi_des + beta_des),(-v_ref*sin(psi_des + beta_des))],[sin(psi_des + beta_des),(v_ref*cos(psi_des + beta_des))],[(sin(beta_des)/lr),(v_ref*cos(beta_des)/lr)]])
 
                 ### TUNE THESE LQR GAINS ###
-                Q = np.matrix([[200, 0, 0],[0, 300, 0],[0, 0, 100]]);
-                R = np.matrix([[25, 0 ],[0, 10]]);
+                Q = np.matrix([[200, 0, 0],[0, 300, 0],[0, 0, 300]]);
+                R = np.matrix([[60, 0 ],[0, 100]]);
 
                 """ These are the starting gains from the solutions
                 Q = np.matrix([[50, 0, 0],[0, 50, 0],[0, 0, 1]]);
@@ -488,8 +488,8 @@ class image_processing_node():
                     vOpt = np.mean(self.movmean,axis=1)[0]
                     deltaOpt = np.mean(self.movmean,axis=1)[1]
                 
-                print('Radius',Radius)
-                print('vopt ',vOpt)
+                #print('Radius',Radius)
+                #print('vopt ',vOpt)
                 print('deltaOpt ',deltaOpt)
 
                 """
