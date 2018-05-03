@@ -35,7 +35,7 @@ class image_processing_node():
         self.h = 480
 
         # Reference velocity
-        self.v_ref = 1.2
+        self.v_ref = 1.3
 
         # Number of moving average points
         self.sx = 5
@@ -403,7 +403,7 @@ class image_processing_node():
                 lr = 0.15
                 lf = 0.15
                 j = 2
-                interval = 1
+                interval = 2
                 x_ref_for_radius = [x_ref[j+interval],x_ref[j+interval*2]]
                 y_ref_for_radius = [y_ref[j+interval],y_ref[j+interval*2]]
                 x_ref_for_radius = np.append(x_ref[j],x_ref_for_radius)
@@ -454,8 +454,8 @@ class image_processing_node():
                 Bc = np.matrix([[cos(psi_des + beta_des),(-v_ref*sin(psi_des + beta_des))],[sin(psi_des + beta_des),(v_ref*cos(psi_des + beta_des))],[(sin(beta_des)/lr),(v_ref*cos(beta_des)/lr)]])
 
                 ### TUNE THESE LQR GAINS ###
-                Q = np.matrix([[50, 0, 0],[0, 1000, 0],[0, 0, 100]]);
-                R = np.matrix([[25, 0 ],[0, 100]]);
+                Q = np.matrix([[50, 0, 0],[0, 1000, 0],[0, 0, 10]]);
+                R = np.matrix([[25, 0 ],[0, 1]]);
 
                 """ These are the starting gains from the solutions
                 Q = np.matrix([[50, 0, 0],[0, 50, 0],[0, 0, 1]]);
