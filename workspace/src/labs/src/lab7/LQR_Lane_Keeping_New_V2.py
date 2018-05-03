@@ -443,7 +443,7 @@ class image_processing_node():
                 print('beta_des',beta_des)
                 print('psi_des',psi_des*180/pi)
                 """
-
+		print('psi_des',psi_des*180/pi)
                 if j == 0:
                     z = np.matrix([[0],[0],[0]])
                 else:
@@ -456,7 +456,7 @@ class image_processing_node():
                 Bc = np.matrix([[cos(psi_des + beta_des),(-v_ref*sin(psi_des + beta_des))],[sin(psi_des + beta_des),(v_ref*cos(psi_des + beta_des))],[(sin(beta_des)/lr),(v_ref*cos(beta_des)/lr)]])
 
                 ### TUNE THESE LQR GAINS ###
-                Q = np.matrix([[50, 0, 0],[0, 1000, 0],[0, 0, 10]]);
+                Q = np.matrix([[50, 0, 0],[0, 100, 0],[0, 0, 1]]);
                 R = np.matrix([[25, 0 ],[0, 1]]);
 
                 """ These are the starting gains from the solutions
