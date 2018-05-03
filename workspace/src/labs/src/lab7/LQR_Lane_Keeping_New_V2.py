@@ -35,7 +35,7 @@ class image_processing_node():
         self.h = 480
 
         # Reference velocity
-        self.v_ref = 1.3
+        self.v_ref = 1.2
 
         # Number of moving average points
         self.sx = 5
@@ -459,7 +459,7 @@ class image_processing_node():
                 Bc = np.matrix([[cos(psi_des + beta_des),(-v_ref*sin(psi_des + beta_des))],[sin(psi_des + beta_des),(v_ref*cos(psi_des + beta_des))],[(sin(beta_des)/lr),(v_ref*cos(beta_des)/lr)]])
 
                 ### TUNE THESE LQR GAINS ###
-                Q = np.matrix([[30, 0, 0],[0, 30, 0],[0, 0, 30]]);
+                Q = np.matrix([[15, 0, 0],[0, 15, 0],[0, 0, 15]]);
                 R = np.matrix([[5, 0 ],[0, 5]]);
 
                 """ These are the starting gains from the solutions
