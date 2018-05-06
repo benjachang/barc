@@ -42,9 +42,9 @@ def main():
 
     # sample input parameters for drift
     s               = 2.0   # distance to go straight
-    Dt_acc          = 0.5 #0.25  # time to turn/accelerate #uniform(0,0.8)
+    Dt_acc          = 0.30  # time to turn/accelerate #uniform(0,0.8)
     Dt_brk          = 0.40  # time to brake
-    df_right        = 1875 #1850  # right turn steering angle #int( uniform( 1850, 1900 ) )
+    df_right        = 1850  # right turn steering angle #int( uniform( 1850, 1900 ) )
     df_left         = 1150  # left turn steering angle
     acc_PWM         = 1873  # accelearate PWM #int( uniform( 1850, 1900 ) )
     brk_PWM         = 990   # brake PWM
@@ -108,7 +108,6 @@ def main():
         elif t < t_straight + Dt_acc + Dt_brk:
             if not brake:   
                 rospy.logwarn("Braking ! ...")
-                rospy.logwarn("Resetting for next drift ...")
                 brake = True
             u_motor = brk_PWM
             u_servo = u_servo_neutral
@@ -134,7 +133,7 @@ def main():
         #print('numDrifts: ', numDrifts)
        
         ecu_pub.publish( ECU(u_motor, u_servo) )
-        rospy.logwarn("test logwarn ...")
+        #rospy.logwarn("test logwarn ...")
         # wait
         rate.sleep()
 
