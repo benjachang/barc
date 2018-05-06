@@ -32,7 +32,7 @@ class image_processing_node():
         self.rel,self.dst = self.vid.read() 
         # Camera resolution
         self.w = 640
-        self.h = 480
+	self.h = 480
 
         # Reference velocity
         self.v_ref = 1.2
@@ -118,7 +118,7 @@ class image_processing_node():
                     lower_red = np.array([0,0,180])
                     upper_red = np.array([50,120,255])
 
-                    lower_white = np.array([150,150,150])
+                    lower_white = np.array([170,150,150])
                     upper_white = np.array([255,255,255])
 
                     # Threshold the HSV image to get only blue colors
@@ -493,7 +493,7 @@ class image_processing_node():
                 
                 #print('Radius',Radius)
                 #print('vopt ',vOpt)
-                #print('deltaOpt ',deltaOpt)
+                print('deltaOpt ',deltaOpt)
 
                 """
                 print('z_ref ',z_ref)
