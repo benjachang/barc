@@ -41,7 +41,7 @@ def main():
     pid_servo.setPoint(0.0)
 
     # sample input parameters for drift
-    s               = 3.0   # distance to go straight
+    s               = 2.0   # distance to go straight
     Dt_acc          = 0.28  # time to turn/accelerate #uniform(0,0.8)
     Dt_brk          = 0.25  # time to brake
     df_right        = 1850  # right turn steering angle #int( uniform( 1850, 1900 ) )
@@ -112,7 +112,7 @@ def main():
                 u_servo = u_servo_neutral
             
             # reset for next drift sequence
-            else:
+            elif t > t_straight + Dt_acc + Dt_brk:
                 rospy.logwarn("Resetting for next drift ...")
                 enc.s_m1 = 0
                 numDrifts = numDrifts + 1
