@@ -42,7 +42,7 @@ def main():
 
     # sample input parameters for drift
     s               = 3.0   # distance to go straight
-    Dt_acc          = 0.25  # time to turn/accelerate #uniform(0,0.8)
+    Dt_acc          = 0.28  # time to turn/accelerate #uniform(0,0.8)
     Dt_brk          = 0.25  # time to brake
     df_right        = 1850  # right turn steering angle #int( uniform( 1850, 1900 ) )
     df_left         = 1150  # left turn steering angle
@@ -113,8 +113,12 @@ def main():
             
             # reset for next drift sequence
             else:
+                rospy.logwarn("Resetting for next drift ...")
                 enc.s_m1 = 0
                 numDrifts = numDrifts + 1
+                straight    = False        
+                turn        = False
+                brake       = False
 
         # publish control command
         #rospy.logwarn("v1 = {}".format(enc.vhat_m1))
