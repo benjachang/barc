@@ -41,11 +41,13 @@ def main():
     pid_servo.setPoint(0.0)
 
     # sample input parameters for drift
-    s               = 3.0
-    Dt              = 0.25  #uniform(0,0.8)
-    df              = 1850  #int( uniform( 1850, 1900 ) )
-    F1		        = 1873  #int( uniform( 1850, 1900 ) )
-    F2              = 990   # brake
+    s               = 3.0   # distance to go straight
+    Dt_acc          = 0.25  # time to turn/accelerate #uniform(0,0.8)
+    Dt_brk          = 0.25  # time to brake
+    df_right        = 1850  # right turn steering angle #int( uniform( 1850, 1900 ) )
+    df_left         = 1150  # left turn steering angle
+    acc_PWM         = 1873  # accelearate PWM #int( uniform( 1850, 1900 ) )
+    brk_PWM         = 990   # brake PWM
     totalNumDrifts  = 2     # total number of drift maneuvers
 
     u_motor_neutral = 1500
@@ -67,6 +69,10 @@ def main():
  
     while not rospy.is_shutdown():
         # get time
+        # get time
+        now = rospy.get_rostime()
+        t   = now.secs + now.nsecs/(10.0**9) - t0
+
         if numDrifts < totalNumDrifts:
 
             # get vehicle into initial state
@@ -90,27 +96,32 @@ def main():
                 t_straight  = t
             
             # perform aggresive turn and accelerate
-            elif t < t_straight + Dt:
+            elif t < t_straight + Dt_acc:
                 if not turn:
                     rospy.logwarn("Turning and accelerating ...")
                     turn = True
-                u_motor = F1 
-                u_servo = df 
+                u_motor = acc_PWM 
+                u_servo = df_right
 
             # apply brake
-            else:
+            elif t < t_straight + Dt_acc + Dt_brk:
                 if not brake:   
                     rospy.logwarn("Braking ! ...")
                     brake = True
-                u_motor = F2
+                u_motor = brk_PWM
                 u_servo = u_servo_neutral
+            
+            # reset for next drift sequence
+            else:
+                enc.s_m1 = 0
                 numDrifts = numDrifts + 1
 
         # publish control command
         #rospy.logwarn("v1 = {}".format(enc.vhat_m1))
-        #rospy.logwarn("s1 = {}".format(enc.s_m1))
+        rospy.logwarn("s1 = {}".format(enc.s_m1))
         #rospy.logwarn("yaw = {}".format(imu.dy))
-        rospy.logwarn("numDrifts = {}".format(numDrifts))
+        #rospy.logwarn("numDrifts = {}".format(numDrifts))
+        #print('numDrifts: ', numDrifts)
         ecu_pub.publish( ECU(u_motor, u_servo) )
 
         # wait
