@@ -42,10 +42,11 @@ def main():
 
     # sample input parameters for drift
     s               = 3.0
-    Dt              = 0.25 #uniform(0,0.8)
-    df              = 1850 #int( uniform( 1850, 1900 ) )
-    F1		    = 1873 #int( uniform( 1850, 1900 ) )
+    Dt              = 0.25  #uniform(0,0.8)
+    df              = 1850  #int( uniform( 1850, 1900 ) )
+    F1		        = 1873  #int( uniform( 1850, 1900 ) )
     F2              = 990   # brake
+    totalNumDrifts  = 2     # total number of drift maneuvers
 
     u_motor_neutral = 1500
     u_servo_neutral = 1500
@@ -61,57 +62,55 @@ def main():
     straight    = False        
     turn        = False
     brake       = False
+
+    numDrifts   = 0
  
     while not rospy.is_shutdown():
         # get time
-        now = rospy.get_rostime()
-        t   = now.secs + now.nsecs/(10.0**9) - t0
-        
-        # get vehicle into initial state
-        # if enc.s_m1 < s: BUG: enc.s_m1 seems to grow more negative
-	if enc.s_m1 > -s:
-            # rospy.logwarn("s1 = {}".format(enc.s_m1))
-            if not straight:
-                rospy.logwarn("Going straight ...")
-                straight = True
+        if numDrifts < totalNumDrifts:
 
-             # compute feedforward / feedback command for motor
-            u_ff    = u_motor_neutral
-            u_fb    = pid_motor.update( enc.vhat_m1 )
-            u_motor = u_ff + int(u_fb)
+            # get vehicle into initial state
+            # if enc.s_m1 < s: BUG: enc.s_m1 seems to grow more negative
+    	    if enc.s_m1 > -s:
+                # rospy.logwarn("s1 = {}".format(enc.s_m1))
+                if not straight:
+                    rospy.logwarn("Going straight ...")
+                    straight = True
+
+                 # compute feedforward / feedback command for motor
+                u_ff    = u_motor_neutral
+                u_fb    = pid_motor.update( enc.vhat_m1 )
+                u_motor = u_ff + int(u_fb)
+                
+                # compute feedforward / feedback command for servo
+                u_ff    = u_servo_neutral
+                u_fb    = pid_servo.update( -imu.dy_deg )
+                u_servo = u_ff + int(u_fb)
+
+                t_straight  = t
             
-            # compute feedforward / feedback command for servo
-            u_ff    = u_servo_neutral
-            u_fb    = pid_servo.update( -imu.dy_deg )
-            u_servo = u_ff + int(u_fb)
+            # perform aggresive turn and accelerate
+            elif t < t_straight + Dt:
+                if not turn:
+                    rospy.logwarn("Turning and accelerating ...")
+                    turn = True
+                u_motor = F1 
+                u_servo = df 
 
-            t_straight  = t
-        #else:
-        #    u_motor = u_motor_neutral
-        #    u_servo = u_servo_neutral
-
-        # perform aggresive turn and accelerate
-
-        elif t < t_straight + Dt:
-            if not turn:
-                rospy.logwarn("Turning and accelerating ...")
-                turn = True
-            u_motor = F1 
-            u_servo = df
-
-        # apply brake
-        else:
-            if not brake:   
-                rospy.logwarn("Braking ! ...")
-                brake = True
-            u_motor = F2
-            u_servo = u_servo_neutral
-
+            # apply brake
+            else:
+                if not brake:   
+                    rospy.logwarn("Braking ! ...")
+                    brake = True
+                u_motor = F2
+                u_servo = u_servo_neutral
+                numDrifts = numDrifts + 1
 
         # publish control command
         #rospy.logwarn("v1 = {}".format(enc.vhat_m1))
         #rospy.logwarn("s1 = {}".format(enc.s_m1))
         #rospy.logwarn("yaw = {}".format(imu.dy))
+        rospy.logwarn("numDrifts = {}".format(numDrifts))
         ecu_pub.publish( ECU(u_motor, u_servo) )
 
         # wait
@@ -120,5 +119,7 @@ def main():
 if __name__ == '__main__':
     try:
        main()
+        now = rospy.get_rostime()
+        t   = now.secs + now.nsecs/(10.0**9) - t0
     except rospy.ROSInterruptException:
         pass
