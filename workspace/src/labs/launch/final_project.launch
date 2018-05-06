@@ -12,8 +12,22 @@
         <param name="baud_rate" value="115200" />
     </node>
 
+    <!-- CAMERA -->
+    <node pkg="uvc_camera" type="uvc_camera_node" name="barc_cam">
+        <param name="index" value="0"/>
+        <param name="device" value="/dev/video6"/>
+        <param name="width" value="640"/>
+        <param name="height" value="480"/>
+    </node>
+
+    <!-- RECORD -->
+    <node pkg="barc" type="record_experiment.py" name="record_experiment" output="screen">
+        <param name="experiment_name" value="$(arg id)" />
+        <param name="camera_on" value="false" />
+    </node>
+
     <!-- Drift Controller -->
-    <node pkg="labs" type="driftController.py" name="controller" output="screen" >
+    <node pkg="labs" type="figure8DriftController.py" name="controller" output="screen" >
         <param name="loop_rate" type="int" value="50" />
         <param name="v_ref" type="double" value="4.0" />
 
