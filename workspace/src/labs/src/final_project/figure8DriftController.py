@@ -41,10 +41,10 @@ def main():
     pid_servo.setPoint(0.0)
 
     # sample input parameters for drift
-    s               = 2.0   # distance to go straight
-    Dt_acc          = 0.5   # time to turn/accelerate #uniform(0,0.8)
+    s               = 1.5   # distance to go straight
+    Dt_acc          = 0.65   # time to turn/accelerate #uniform(0,0.8)
     Dt_brk          = 0.5   # time to brake
-    df_right        = 1850  # right turn steering angle #int( uniform( 1850, 1900 ) )
+    df_right        = 1865 #1850  # right turn steering angle #int( uniform( 1850, 1900 ) )
     df_left         = 1150  # left turn steering angle
     acc_PWM         = 1873  # accelearate PWM #int( uniform( 1850, 1900 ) )
     brk_PWM         = 990   # brake PWM
@@ -90,8 +90,8 @@ def main():
                 
                 # compute feedforward / feedback command for servo
                 u_ff    = u_servo_neutral
-                u_fb    = pid_servo.update( -imu.dy_deg )
-                u_servo = u_ff + int(u_fb)
+                #u_fb    = pid_servo.update( -imu.dy_deg )
+                u_servo = u_ff #+ int(u_fb)
 
                 t_straight  = t
             
@@ -123,7 +123,12 @@ def main():
                 if not reset:
                     rospy.logwarn("Resetting for next drift ...")
                     reset = True
-                enc.s_m1 = 0
+                enc.s_m1    = 0
+		enc.vhat_m1 = 0
+		imu.y0 	    = None
+		imu.y_prev  = 0
+		#imu.dy      = 0
+		#imu.dy_deg  = 0
                 straight    = False        
                 turn        = False
                 brake       = False
