@@ -42,7 +42,7 @@ def main():
 
     # sample input parameters for drift
     s               = 2.0   # distance to go straight
-    Dt_acc          = 0.30  # time to turn/accelerate #uniform(0,0.8)
+    Dt_acc          = 0.5   # time to turn/accelerate #uniform(0,0.8)
     Dt_brk          = 0.5   # time to brake
     df_right        = 1850  # right turn steering angle #int( uniform( 1850, 1900 ) )
     df_left         = 1150  # left turn steering angle
