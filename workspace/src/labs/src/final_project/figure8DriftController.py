@@ -43,7 +43,7 @@ def main():
     # sample input parameters for drift
     s               = 2.0   # distance to go straight
     Dt_acc          = 0.30  # time to turn/accelerate #uniform(0,0.8)
-    Dt_brk          = 0.40  # time to brake
+    Dt_brk          = 0.5   # time to brake
     df_right        = 1850  # right turn steering angle #int( uniform( 1850, 1900 ) )
     df_left         = 1150  # left turn steering angle
     acc_PWM         = 1873  # accelearate PWM #int( uniform( 1850, 1900 ) )
@@ -55,9 +55,9 @@ def main():
     u_motor         = u_motor_neutral
     u_servo         = u_servo_neutral
 
-    rospy.logwarn("Dt = {}".format(Dt))
-    rospy.logwarn("F1 (acceleration) = {}".format(F1))
-    rospy.logwarn("df (steering) = {}".format(df))
+    rospy.logwarn("Dt = {}".format(Dt_acc))
+    rospy.logwarn("F1 (acceleration) = {}".format(acc_PWM))
+    rospy.logwarn("df (steering) = {}".format(df_right))
 
     now         = rospy.get_rostime()
     t0          = now.secs + now.nsecs/(10.0**9)
@@ -74,73 +74,71 @@ def main():
         now = rospy.get_rostime()
         t   = now.secs + now.nsecs/(10.0**9) - t0
 
-        #if numDrifts < totalNumDrifts:
+        if numDrifts < totalNumDrifts:
+            # get vehicle into initial state
+            # if enc.s_m1 < s: BUG: enc.s_m1 seems to grow more negative
+            if enc.s_m1 > -s:
+                # rospy.logwarn("s1 = {}".format(enc.s_m1))
+                if not straight:
+                    rospy.logwarn("Going straight ...")
+                    straight = True
 
-        # get vehicle into initial state
-        # if enc.s_m1 < s: BUG: enc.s_m1 seems to grow more negative
-        if enc.s_m1 > -s:
-            # rospy.logwarn("s1 = {}".format(enc.s_m1))
-            if not straight:
-                rospy.logwarn("Going straight ...")
-                straight = True
+                 # compute feedforward / feedback command for motor
+                u_ff    = u_motor_neutral
+                u_fb    = pid_motor.update( enc.vhat_m1 )
+                u_motor = u_ff + int(u_fb)
+                
+                # compute feedforward / feedback command for servo
+                u_ff    = u_servo_neutral
+                u_fb    = pid_servo.update( -imu.dy_deg )
+                u_servo = u_ff + int(u_fb)
 
-             # compute feedforward / feedback command for motor
-            u_ff    = u_motor_neutral
-            u_fb    = pid_motor.update( enc.vhat_m1 )
-            u_motor = u_ff + int(u_fb)
+                t_straight  = t
             
-            # compute feedforward / feedback command for servo
-            u_ff    = u_servo_neutral
-            u_fb    = pid_servo.update( -imu.dy_deg )
-            u_servo = u_ff + int(u_fb)
+            # perform aggresive turn and accelerate
+            elif t < t_straight + Dt_acc:
+                if not turn:
+                    rospy.logwarn("Turning and accelerating ...")
+                    turn = True
+                # alternate steering direction in figure8
+                if numDrifts%2 == 0:
+                    u_servo = df_right
+                else:
+                    u_servo = df_left
+                u_motor = acc_PWM 
+                
 
-            t_straight  = t
-        
-        # perform aggresive turn and accelerate
-        elif t < t_straight + Dt_acc:
-            if not turn:
-                rospy.logwarn("Turning and accelerating ...")
-                turn = True
-            u_motor = acc_PWM 
-            u_servo = df_right
-
-        # apply brake
-        elif t < t_straight + Dt_acc + Dt_brk:
-            if not brake:   
-                rospy.logwarn("Braking ! ...")
-                brake = True
-            u_motor = brk_PWM
-            u_servo = u_servo_neutral
-        
-        # reset for next drift sequence
-        #elif t > t_straight + Dt_acc + Dt_brk:
-        else:
-            if not reset:
-                rospy.logwarn("Resetting for next drift ...")
-                reset = True
-            enc.s_m1 = 0
-            #numDrifts = numDrifts + 1
-            straight    = False        
-            turn        = False
-            brake       = False
-
+            # apply brake
+            elif t < t_straight + Dt_acc + Dt_brk:
+                if not brake:   
+                    rospy.logwarn("Braking ! ...")
+                    brake = True
+                    numDrifts = numDrifts + 1
+                    reset = False
+                u_motor = brk_PWM
+                u_servo = u_servo_neutral
+            
+            # reset for next drift sequence
+            else:
+                if not reset:
+                    rospy.logwarn("Resetting for next drift ...")
+                    reset = True
+                enc.s_m1 = 0
+                straight    = False        
+                turn        = False
+                brake       = False
         
         # publish control command
         #rospy.logwarn("v1 = {}".format(enc.vhat_m1))
         #rospy.logwarn("s1 = {}".format(enc.s_m1))
         #rospy.logwarn("yaw = {}".format(imu.dy))
-        #rospy.logwarn("numDrifts = {}".format(numDrifts))
-        #print('numDrifts: ', numDrifts)
-       
         ecu_pub.publish( ECU(u_motor, u_servo) )
-        #rospy.logwarn("test logwarn ...")
+
         # wait
         rate.sleep()
 
 if __name__ == '__main__':
     try:
        main()
-        now = rospy.get_rostime()
-        t   = now.secs + now.nsecs/(10.0**9) - t0
     except rospy.ROSInterruptException:
         pass
