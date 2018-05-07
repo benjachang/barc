@@ -78,7 +78,7 @@ def main():
 
         # get vehicle into initial state
         # if enc.s_m1 < s: BUG: enc.s_m1 seems to grow more negative
-	    if enc.s_m1 > -s:
+        if enc.s_m1 > -s:
             # rospy.logwarn("s1 = {}".format(enc.s_m1))
             if not straight:
                 rospy.logwarn("Going straight ...")
